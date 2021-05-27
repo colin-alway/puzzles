@@ -7,12 +7,17 @@ Colin Alway 2016
 Builds solution by alternately processing rows then columns until
 all possible positions are exhausted.
 """
+from __future__ import absolute_import
+from __future__ import print_function
 import itertools    # combinations
 import math
 import re
 import sys
 
 from data import *
+from six.moves import map
+from six.moves import range
+from six.moves import zip
 
 
 ROW = 0
@@ -31,7 +36,7 @@ class Grid (object):
         self.access_mode = ROW
         self.cells = [[None for ii in range(GRID_SIZE)] for jj in range(GRID_SIZE)]
         for (key,val) in cell_init.items():
-            print key, val
+            print(key, val)
             self.cells[key[0]][key[1]] = val
     
     def pprint(self):
@@ -42,21 +47,21 @@ class Grid (object):
         pad = 4
         upper = [x/10 for x in range(GRID_SIZE)]
         lower = [x%10 for x in range(GRID_SIZE)]
-        print ' ' * pad + ' '+' '.join(map(str,upper))
-        print ' ' * pad + ' '+' '.join(map(str,lower))
-        print ' ' * pad + pprint_header()
+        print(' ' * pad + ' '+' '.join(map(str,upper)))
+        print(' ' * pad + ' '+' '.join(map(str,lower)))
+        print(' ' * pad + pprint_header())
         for row in range(GRID_SIZE):
-            print '  {0:2}'.format(row),
+            print('  {0:2}'.format(row), end=' ')
             for col in range(GRID_SIZE):
                 cell = self.get_cell_rc(row, col)
                 if cell is None:
-                    print '.',
+                    print('.', end=' ')
                 elif cell == 0:
-                    print ' ',
+                    print(' ', end=' ')
                 else:   # cell == 1
-                    print '#',
-            print   # end line
-        print ' ' * pad + pprint_header(delim='+', pad='-')
+                    print('#', end=' ')
+            print()   # end line
+        print(' ' * pad + pprint_header(delim='+', pad='-'))
         
     def set_access_mode(self, mode):
         self.access_mode = mode
@@ -84,14 +89,14 @@ class Grid (object):
         for line_id in range(GRID_SIZE):
             combi_data = CombiData(line_data_array[line_id], GRID_SIZE)
             if debug:
-                print '{0:28}'.format(line_data_array[line_id]), 
-                print '{0:5}'.format(combi_data.max_combi)
+                print('{0:28}'.format(line_data_array[line_id]), end=' ') 
+                print('{0:5}'.format(combi_data.max_combi))
 
             #iterate over combinations
             if combi_data.max_combi == 1:
-                line = get_array_combi(line_data_array[line_id], GRID_SIZE, range(len(line_data_array[line_id])))
+                line = get_array_combi(line_data_array[line_id], GRID_SIZE, list(range(len(line_data_array[line_id]))))
                 if debug:
-                    print line
+                    print(line)
                 for col in range(GRID_SIZE):
                     self.set_cell(line_id, col, line[col])
                 continue
@@ -104,11 +109,11 @@ class Grid (object):
             match_line = None
             # num_combi is number of valid combinations, could be max_combi if no cells are set on this line
             num_combi = 0
-            for combi in itertools.combinations(range(combi_data.nn), combi_data.rr):
+            for combi in itertools.combinations(list(range(combi_data.nn)), combi_data.rr):
                 line = get_array_combi(line_data_array[line_id], GRID_SIZE, combi)
                 
                 if debug and verbose:
-                    print combi, ':', line
+                    print(combi, ':', line)
                 
                 # check if any known cells clash with pattern - if so skip this combination
                 skip_line = False
@@ -129,22 +134,22 @@ class Grid (object):
                 num_combi += 1
 
             if debug and verbose:
-                print combi, ':', match_line
+                print(combi, ':', match_line)
             # step through match_line, setting cell values that are not None
             try:
                 for index,val in enumerate(match_line):
                     if val is not None:
                         self.set_cell(line_id, index, val)
-            except Exception, ee:   #TypeError
-                print '>>>', ee
-                print '>>> access_mode', self.access_mode
-                print '>>> line_id', line_id
-                print '>>> line_data_array', line_data_array[line_id]
-                print '>>> line ', line
+            except Exception as ee:   #TypeError
+                print('>>>', ee)
+                print('>>> access_mode', self.access_mode)
+                print('>>> line_id', line_id)
+                print('>>> line_data_array', line_data_array[line_id])
+                print('>>> line ', line)
                 
-                print '>>> combi_data', combi_data
-                print '>>> num_combi', num_combi
-                print '>>> match_line', match_line
+                print('>>> combi_data', combi_data)
+                print('>>> num_combi', num_combi)
+                print('>>> match_line', match_line)
                 raise ee
 
 
@@ -196,7 +201,7 @@ def get_array_combi(data_array, grid_size, combi_array):
 
 if __name__ == '__main__':
 
-    print
+    print()
     
     grid = Grid()
     grid.pprint()
